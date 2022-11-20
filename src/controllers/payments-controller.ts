@@ -1,12 +1,12 @@
 import { requestError } from "@/errors";
 import { AuthenticatedRequest } from "@/middlewares";
-import paymentsServices from "@/services/payments-service";
+import paymentsServices, { PaymentData } from "@/services/payments-service";
 import { Response } from "express";
 import httpStatus from "http-status";
 
 export async function getPaymentByTicketId(req: AuthenticatedRequest, res: Response) {
-  const ticketId = req.query.ticketId as string;
   const { userId } = req;
+  const ticketId = req.query.ticketId as string;
 
   if (!ticketId) {
     throw requestError(400, "BAD_REQUEST");
@@ -31,9 +31,23 @@ export async function getPaymentByTicketId(req: AuthenticatedRequest, res: Respo
 }
 
 export async function postPayment(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+  const paymentData: PaymentData = req.body;
+
   try {
-    return;
+    const payment = await paymentsServices.createPayment(paymentData, userId);
+
+    return res.status(httpStatus.OK).send(payment);
   } catch (error) {
-    return;
+    if (error.name === "NotFoundError") {
+      return res.send(httpStatus.NOT_FOUND);
+    }
+    if (error.name === "RequestError") {
+      return res.send(httpStatus.BAD_REQUEST);
+    }
+    if (error.name === "UnauthorizedError") {
+      return res.send(httpStatus.UNAUTHORIZED);
+    }
+    return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
