@@ -1,10 +1,9 @@
 import { prisma } from "@/config";
-import { Payment } from "@prisma/client";
 
-async function findPaymentById(ticketId: number) {
-  return prisma.payment.findUnique({ where: { id: ticketId } });
+async function findPaymentsByTicketId(ticketId: number) {
+  return prisma.payment.findFirst({ where: { ticketId } });
 }
 
-const paymentsRepository = { findPaymentById };
+const paymentsRepository = { findPaymentsByTicketId };
 
 export default paymentsRepository;

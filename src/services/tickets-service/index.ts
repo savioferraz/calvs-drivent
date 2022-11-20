@@ -1,20 +1,18 @@
 import { notFoundError } from "@/errors";
 import enrollmentRepository from "@/repositories/enrollment-repository";
-import ticketsRepository from "@/repositories/tickets-repository";
+import ticketsRepository, { CreateTicketParams } from "@/repositories/tickets-repository";
 
 async function findTicketsType() {
-  const result = ticketsRepository.findTicketsType();
+  const result = await ticketsRepository.findTicketsType();
   return result;
 }
 
 async function findUserTickets(userId: number) {
   const enrollmentWithAddress = await enrollmentRepository.findWithAddressByUserId(userId);
 
-  if (!enrollmentWithAddress) throw notFoundError();
+  const result = await ticketsRepository.findTicketsByEnrollmentId(enrollmentWithAddress.id);
 
-  const result = ticketsRepository.findTickets(enrollmentWithAddress.id);
-
-  if (result === null) throw notFoundError();
+  if (!result || !enrollmentWithAddress) throw notFoundError();
 
   return result;
 }
@@ -23,8 +21,16 @@ async function createNewTicket(userId: number, ticketTypeId: number) {
   const enrollmentWithAddress = await enrollmentRepository.findWithAddressByUserId(userId);
 
   if (!enrollmentWithAddress) throw notFoundError();
+  const body: CreateTicketParams = {
+    ticketTypeId,
+    enrollmentId: enrollmentWithAddress.id,
+    status: "RESERVED",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 
-  await ticketsRepository.createNewTicket(enrollmentWithAddress.id, ticketTypeId);
+  const result = await ticketsRepository.createNewTicket(body);
+  return result;
 }
 
 const ticketsServices = { findTicketsType, findUserTickets, createNewTicket };

@@ -5,18 +5,21 @@ async function findTicketsType() {
   return prisma.ticketType.findMany();
 }
 
-async function findTickets(enrollmentId: number) {
+async function findTicketsByEnrollmentId(enrollmentId: number) {
   return prisma.ticket.findFirst({ where: { enrollmentId }, include: { TicketType: true } });
 }
 
-async function createNewTicket(enrollmentId: number, ticketTypeId: number) {
-  //   return prisma.ticket.create({ data: { enrollmentId: enrollmentId, ticketTypeId: ticketTypeId } });
-  return;
+async function createNewTicket(body: CreateTicketParams): Promise<Ticket> {
+  return prisma.ticket.create({ data: body, include: { TicketType: true } });
 }
 
-export type CreateTicketParams = Omit<Ticket, "id" | "createdAt" | "updatedAt">;
-// export type CreateTicketTypeParams = Omit<TicketType, "id" | "createdAt" | "updatedAt">;
+async function findTicketById(ticketId: number) {
+  return prisma.ticket.findFirst({ where: { id: ticketId } });
+}
 
-const ticketsRepository = { findTicketsType, findTickets, createNewTicket };
+export type CreateTicketParams = Omit<Ticket, "id">;
+export type CreateTicketTypeParams = Omit<TicketType, "id" | "createdAt" | "updatedAt">;
+
+const ticketsRepository = { findTicketsType, findTicketsByEnrollmentId, createNewTicket, findTicketById };
 
 export default ticketsRepository;
