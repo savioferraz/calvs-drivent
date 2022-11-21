@@ -18,13 +18,13 @@ export async function getPaymentByTicketId(req: AuthenticatedRequest, res: Respo
     return res.status(httpStatus.OK).send(payments);
   } catch (error) {
     if (error.name === "NotFoundError") {
-      return res.send(httpStatus.NOT_FOUND);
+      return res.sendStatus(httpStatus.NOT_FOUND);
     }
     if (error.name === "RequestError") {
-      return res.send(httpStatus.BAD_REQUEST);
+      return res.sendStatus(httpStatus.BAD_REQUEST);
     }
     if (error.name === "UnauthorizedError") {
-      return res.send(httpStatus.UNAUTHORIZED);
+      return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
@@ -40,13 +40,13 @@ export async function postPayment(req: AuthenticatedRequest, res: Response) {
     return res.status(httpStatus.OK).send(payment);
   } catch (error) {
     if (error.name === "NotFoundError") {
-      return res.send(httpStatus.NOT_FOUND);
+      return res.sendStatus(httpStatus.NOT_FOUND);
     }
     if (error.name === "RequestError") {
-      return res.send(httpStatus.BAD_REQUEST);
+      return res.sendStatus(httpStatus.BAD_REQUEST);
     }
     if (error.name === "UnauthorizedError") {
-      return res.send(httpStatus.UNAUTHORIZED);
+      return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
