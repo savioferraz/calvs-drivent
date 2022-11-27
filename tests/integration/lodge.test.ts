@@ -104,6 +104,20 @@ describe("GET /hotels", () => {
       );
     });
     describe("when hotelId is given in params", () => {
+      it("should respond with status 404 when given an invalid hotelId", async () => {
+        const hotel = await createHotel();
+        await createRooms(hotel.id);
+        const user = await createUser();
+        const token = await generateValidToken(user);
+        const enrollment = await createEnrollmentWithAddress(user);
+        const ticketType = await createTicketTypeWithHotel(true);
+        await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+
+        const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
+
+        expect(response.status).toEqual(httpStatus.NOT_FOUND);
+      });
+
       it("should respond with status 200 and list rooms in selected hotel", async () => {
         const hotel = await createHotel();
         const rooms = await createRooms(hotel.id);

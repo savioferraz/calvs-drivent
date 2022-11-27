@@ -23,6 +23,6 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
     if (error.status === 403) return res.sendStatus(httpStatus.FORBIDDEN);
     if (error.status === 402) return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
 
-    return res.sendStatus(httpStatus.NO_CONTENT);
+    return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
