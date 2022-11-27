@@ -6,12 +6,16 @@ export async function createHotel() {
     data: {
       name: faker.name.findName(),
       image: faker.image.imageUrl(),
-      Rooms: {
-        create: {
-          name: faker.name.findName(),
-          capacity: faker.datatype.number(),
-        },
-      },
+    },
+  });
+}
+
+export async function createRooms(hotelId: number) {
+  return prisma.room.create({
+    data: {
+      name: faker.name.findName(),
+      capacity: faker.datatype.number(),
+      hotelId,
     },
   });
 }

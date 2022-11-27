@@ -4,6 +4,6 @@ import { getHotels } from "@/controllers/lodge-controller";
 
 const lodgeRouter = Router();
 
-lodgeRouter.all("/*", authenticateToken).get("", getHotels);
+lodgeRouter.all("/*", authenticateToken).get("/", getHotels).get("/:hotelId", getHotels);
 
 export { lodgeRouter };

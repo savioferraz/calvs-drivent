@@ -12,8 +12,8 @@ async function listHotels(userId: number, hotelId: number) {
   if (!ticket || ticket.TicketType.includesHotel === false) throw requestError(403, "ForbiddenError");
   if (ticket.status !== "PAID") throw requestError(402, "PaymentRequired");
 
-  const payment = await paymentRepository.findPaymentByTicketId(ticket.id);
-  if (!payment) throw requestError(403, "ForbiddenError");
+  // const payment = await paymentRepository.findPaymentByTicketId(ticket.id);
+  // if (!payment) throw requestError(403, "ForbiddenError");
 
   if (hotelId) {
     const hotelRooms = await lodgeRepository.findHotelWithRooms(hotelId);

@@ -33,13 +33,3 @@ export async function createTicketTypeWithHotel(includesHotel: boolean) {
     },
   });
 }
-
-export async function createTicketPaid(enrollmentId: number, ticketTypeId: number) {
-  return prisma.ticket.create({
-    data: {
-      enrollmentId,
-      ticketTypeId,
-      status: "PAID",
-    },
-  });
-}

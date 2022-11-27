@@ -7,7 +7,7 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
   try {
     const { userId } = req;
 
-    const hotelId = Number(req.query.hotelId);
+    const hotelId = Number(req.params.hotelId);
 
     if (hotelId) {
       const rooms = await lodgeService.listHotels(userId, hotelId);
@@ -20,23 +20,9 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
     }
   } catch (error) {
     if (error.name === "NotFoundError") return res.sendStatus(httpStatus.NOT_FOUND);
-    if (error.name === "RequestError") return res.sendStatus(httpStatus.FORBIDDEN);
+    if (error.status === 403) return res.sendStatus(httpStatus.FORBIDDEN);
     if (error.status === 402) return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
 
     return res.sendStatus(httpStatus.NO_CONTENT);
   }
 }
-
-// export async function getHotelRooms(req: AuthenticatedRequest, res: Response) {
-//   try {
-//     const hotelId = Number(req.query.hotelId);
-
-//     const rooms = await lodgeService.listRooms(hotelId);
-
-//     return res.status(httpStatus.OK).send(rooms);
-//   } catch (error) {
-//     if (error.name === "NotFoundError") return res.sendStatus(httpStatus.NOT_FOUND);
-
-//     return res.sendStatus(httpStatus.NO_CONTENT);
-//   }
-// }
