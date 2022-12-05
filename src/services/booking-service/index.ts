@@ -41,7 +41,7 @@ async function createBooking(userId: number, roomId: number) {
 
 async function updateBooking(userId: number, roomId: number, bookingId: number) {
   await verifyTicketAndEnrollment(userId);
-  if ((roomId || bookingId) < 1) throw notFoundError();
+  if (roomId < 1 || bookingId < 1) throw notFoundError();
 
   await verifyRoomCapacity(roomId);
 
