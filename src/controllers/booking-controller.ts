@@ -31,7 +31,7 @@ export async function postBooking(req: AuthenticatedRequest, res: Response) {
   try {
     const newBooking = await bookingService.createBooking(userId, roomId);
 
-    return res.status(httpStatus.OK).send(newBooking);
+    return res.status(httpStatus.OK).send({ bookingId: newBooking.id });
   } catch (error) {
     if (error.name === "NotFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
@@ -54,7 +54,7 @@ export async function putBooking(req: AuthenticatedRequest, res: Response) {
   try {
     const updatedBooking = await bookingService.updateBooking(Number(userId), Number(roomId), Number(bookingId));
 
-    return res.status(httpStatus.OK).send(updatedBooking);
+    return res.status(httpStatus.OK).send({ bookingId: updatedBooking.id });
   } catch (error) {
     if (error.name === "NotFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
@@ -64,6 +64,9 @@ export async function putBooking(req: AuthenticatedRequest, res: Response) {
     }
     if (error.statusText === "PaymentRequired") {
       return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
+    }
+    if (error.name === "UnauthorizedError") {
+      return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }

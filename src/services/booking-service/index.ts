@@ -1,4 +1,4 @@
-import { notFoundError, requestError } from "@/errors";
+import { notFoundError, requestError, unauthorizedError } from "@/errors";
 import bookingRepository from "@/repositories/booking-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import hotelRepository from "@/repositories/hotel-repository";
@@ -44,6 +44,9 @@ async function updateBooking(userId: number, roomId: number, bookingId: number) 
   if (roomId < 1 || bookingId < 1) throw notFoundError();
 
   await verifyRoomCapacity(roomId);
+
+  const verifyBooking = await bookingRepository.findBookingById(bookingId);
+  if (verifyBooking.userId !== userId) throw unauthorizedError();
 
   const updatedBooking = await bookingRepository.updateBooking(roomId, bookingId);
 

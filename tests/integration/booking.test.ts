@@ -267,11 +267,7 @@ describe("POST /booking", () => {
 
       expect(response.status).toBe(httpStatus.OK);
       expect(response.body).toEqual({
-        id: expect.any(Number),
-        userId: user.id,
-        roomId: room.id,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
+        bookingId: expect.any(Number),
       });
     });
 
@@ -412,6 +408,27 @@ describe("PUT /booking/:bookingId", () => {
       expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
+    it("should respond with status 401 when user doesn't own given booking", async () => {
+      const user = await createUser();
+      const otherUser = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel(true);
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const hotel = await createHotel();
+      const room = await createRoomWithHotelId(hotel.id);
+      const newRoom = await createRoomWithHotelId(hotel.id);
+      const otherBooking = await createBookingbyUser(otherUser.id, room.id);
+      const body = { roomId: newRoom.id };
+
+      const response = await server
+        .put(`/booking/${otherBooking.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(body);
+
+      expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+    });
+
     it("should respond with status 200 and list updated booking", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -420,22 +437,19 @@ describe("PUT /booking/:bookingId", () => {
       await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const hotel = await createHotel();
       const room = await createRoomWithHotelId(hotel.id);
+      const newRoom = await createRoomWithHotelId(hotel.id);
       const booking = await createBookingbyUser(user.id, room.id);
-      const body = { roomId: expect.any(Number) };
+      const body = { roomId: newRoom.id };
 
-      const response = await server.put("/booking/1").set("Authorization", `Bearer ${token}`).send(body);
+      const response = await server.put(`/booking/${booking.id}`).set("Authorization", `Bearer ${token}`).send(body);
 
       expect(response.status).toBe(httpStatus.OK);
       expect(response.body).toEqual({
-        id: expect.any(Number),
-        userId: user.id,
-        roomId: room.id,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
+        bookingId: expect.any(Number),
       });
     });
 
-    it("should preserve booking database", async () => {
+    it("should keep booking database", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
@@ -443,10 +457,12 @@ describe("PUT /booking/:bookingId", () => {
       await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const hotel = await createHotel();
       const room = await createRoomWithHotelId(hotel.id);
-      const body = { roomId: room.id };
+      const newRoom = await createRoomWithHotelId(hotel.id);
+      const booking = await createBookingbyUser(user.id, room.id);
+      const body = { roomId: newRoom.id };
       const beforeCount = await prisma.booking.count();
 
-      await server.put("/booking/1").set("Authorization", `Bearer ${token}`).send(body);
+      await server.put(`/booking/${booking.id}`).set("Authorization", `Bearer ${token}`).send(body);
 
       const afterCount = await prisma.booking.count();
 
